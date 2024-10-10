@@ -1,0 +1,59 @@
+<html>
+    <head>
+        <title>RAG Demo</title>
+    </head>
+    <body>
+        <form id="document-form">
+            <textarea name="doc"></textarea>
+            <button type="submit">Submit document</button>
+        </form>
+        <form id="prompt-form">
+            <textarea name="prompt"></textarea>
+            <button type="submit">Generate response</button>
+        </form>
+        <pre id="response">Response will come here...</pre>
+        <script>
+            document.getElementById("document-form").onsubmit = function(ev) {
+                ev.preventDefault();
+
+                var formData = new FormData(this);
+
+                fetch('/add/', {
+                    method: 'post',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        documents: [
+                            {
+                                text: formData.get("doc")
+                            }
+                        ]
+                    })
+                }).then((resp) => {
+                    this.reset()
+                });
+            }
+            document.getElementById("prompt-form").onsubmit = function(ev) {
+                ev.preventDefault();
+
+                var formData = new FormData(this);
+
+                fetch('/query/', {
+                    method: 'post',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        content: formData.get("prompt")
+                    })
+                }).then((resp) => {
+                    return resp.json()
+                }).then((data) => {
+                    document.getElementById("response").innerText = data.response
+                    this.reset()
+                });
+            }
+        </script>
+    </body>
+</html>
